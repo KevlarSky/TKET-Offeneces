@@ -4,6 +4,8 @@
 	- Hardware override to keep door open when that's wanted
 - if the door fails to close after multiple attempts it notifies someone
 - time between attempts should be such that if saftey beam or motor force trips that it can be assumed that the problem is cleared. example 30 minutes
+- LED indicators for basic diagnostics (what is sensed, and when command is being sent)
+- Sensors should not interfere with existing garage door controller (e.g. optocouplers if reusing existing limit switches)
 
 # Implementation
 ## Brainstorm Process
