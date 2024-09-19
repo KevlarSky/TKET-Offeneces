@@ -1,0 +1,375 @@
+[Wiki](https://en.wikipedia.org/wiki/Printed_circuit_board)
+[Microwave 101](https://www.microwaves101.com/encyclopedias/microwave-printed-circuit-boards)
+[[PWB (Printed Wiring Board) with RF]]
+[[PCB Directory]]
+# Learning
+---
+- [x] study [[PCB (Printed Circuit Board) Design]] tools ⏫ ⏳ 2024-08-16 ✅ 2024-08-19
+https://www.keysight.com/us/en/learn/course.rf-board-design-flow-boot-camp.html
+[Great Scott Video](https://youtu.be/35YuILUlfGs?si=P0VY-E7E1SeLi0uD)
+
+# General steps 
+---
+1. Design the schematic 
+2. [[#Component Selection]]
+3. [[#Placement|Place the components on the PCB ]] 
+	1. Set your snap grid, visible grid, and default track/pad sizes.  
+	2. The best way to start your layout is to get ALL of your components onto the screen
+	3. Divide and place your components into functional “building blocks” where possible.  
+4. [[#Traces and Tracks|Route the signals and power planes]] 
+	1. [[#Rats Nest]]
+	2. Identify layout critical tracks on your circuit and route them first. 
+	3. Place and route each building block separately, off the board.  
+	4. Move completed building blocks into position on your main board.  
+	5. Route the remaining signal and power connections between blocks.  
+	6. Add [[#Polygons]] 
+	7. [[#Finishing Touches]]
+	8. Do a [[#DRC (Design Rule Checks)]]
+	9. Get someone to check it
+6. Send design to manufacturer 
+7. Assemble 
+
+# Good Practices 
+---
+- clearly label parts
+- named nets
+- logical groups on the board
+- bypass caps to supplies
+	- typically 0.1 uF
+- keep components close together to minimize parasitics
+- DRC often
+- keep in mind the power dissipation for component spacing and trace widths
+	- in general, make the traces/tracks as wide as possible 
+- combine grounds
+- clearance for connectors and heat sinks
+- separate "noisy" and "quiet" signals
+- always add test points
+	- also good to leave extra pads where circuit values can adjusted
+- map what each layer is generally for
+- do you need mounting holes
+# Side and Layer Design Options
+---
+## Single Sided Designs
+- by far the cheapest designs
+- more planning is involved in placement
+## Double Sided Designs
+- more freedom in component and trace placement
+- Tacks should be at 90 degrees between the sides. some think it's ugly but it is flexible 
+- Options for good ground planes, needed at higher frequencies
+## Multilayer Designs
+- Even layers. 
+	- 4,6,8 are common
+	- Odd layers do exist but there's generally no benefit
+- Components go on the top and sometimes the bottom layers
+- 6 layer example
+	1. Top Layer
+	2. [[#Ground Planes]]
+	3. Mid Layer 1
+	4. Mid Layer 2
+	5. [[#Power Planes]]
+	6. Bottom Layer
+- Use all the layers, don't use them blank make it a ground plane if nothing else
+	- unless you can get ride of an even number then go down to the next size of layer
+- It is typical to make 1 layer completely ground, with vias through it. and 1 layer a split of just power delivery tracks 
+	- [[#Power Planes]] typically in the middle and can be multiple DC voltages
+	- [[#Ground Planes]] is closer to the top but no the top layer
+- [[#Blind Vias]] & [[#Buried Vias]]
+## Double Sided Loading
+- the laoding of components of both sides of the board
+- much denser
+- complicates [[#Assembly]]
+- reduces distacnes for tracks, important for [[Transmision Line]] constraints
+	- can crease the frequencies used
+- [[#BGA (Ball Grid Array)]] typically benefit from having caps on the bottom of the board
+- You might often see the back side is nothing but bypass caps to help with the density on components
+
+# Power Planes
+---
+- layers of solid copper or split into just a few sections of different voltage. 
+	- no tracks
+	- remove the some on the edges to prevent the power planes from touching the edge of the board. can cause shorts otherwise
+- reduce the power wiring inductance and impedance to your components
+- vital for high speed digital design
+- Not possible on [[#Single Sided Designs]] but most common on internal layers of [[#Multilayer Designs]]
+- On a 4 layer board with complex power requirements it is common to dedicate one layer to your ground plane, and another layer to your various positive and negative power tracks
+- common practice to separate digital and analog power planes even of the same voltage. be mindful not to cross them anywhere else too
+## Ground Planes
+- usually the layer under the top layer to provide good references to your components
+- [Splitting Ground Planes](https://resources.pcb.cadence.com/blog/2021-should-you-ever-separate-analog-and-digital-ground-planes)
+- ![[Electronics Grounding]]
+[[#Polygons]]
+# [[Electronics Bypassing]]
+# [[Transmision Line]]
+# Grids and Units
+---
+- use snap grids, you may also want visual grid of 100 thou
+- "thou shall use [[thou]]"
+	- to avoid confusion of mils and millimeters 
+	- really only mechanical things such as [[#Holes]] and board dimensions will usually be in metric. And some times package pins
+- 100 thou is standard course
+	- most placements
+	- keeps things looking tidy and aligned 
+- 50 thou is fine layout 
+- 25 and 10 thou are very precise 
+# View
+---
+- always work from the top layer down through the board 
+- a down side is that any print on the back will appear mirrored when looking through the board
+# Annotation
+---
+## Forward Annotation
+- changes to your existing PCB layout via the schematic editor
+- deleting tracks to pads that no longer exist
+## Back Annotation
+- changes in the layout effect the schematic
+- usually just labels, not a good thing other wise
+# Material and Layout Layers
+---
+## Traces and Tracks
+- Copper
+- for DC, make them as wide as possible for lower resistance 
+- check the "track/space" resolution the PCB manufacturer can do
+	- example: 8/10 is 8 thou minimum width of copper and 10 thou minimum between tracks
+- a connection between two or more pads is called a Net
+- Always take your track to the center of the pad
+- It's generally between to delete and reroute a trace instead of editing
+- generally you should use single end-to-end tracks
+	- It's unusual to use more than one track
+- Keep power and ground tracks running in close proximity to each other if possible, don’t send them in opposite directions around the board. This lowers the loop inductance of your power system, and allows for effective bypassing.
+![[Pasted image 20240824182639.png]]
+### Bends
+- 90 deg bends are considered bad practice. looks bad and can pose manufacturing problems
+- use hard 45 whenever possible. no need for curves
+- straight lines between points rarely exist as they limit options
+### Typically Widths
+Signal: 25 thou
+Power and Grounds: 50 thou
+Going between ICs: 10-15
+You might have to "neck down" a trace to go between something or for flexibility, try to do it as little as possible
+### Copper Track Thickness 
+www.ultracad.com/calc.htm
+
+| oz/ft2     | g/m2     | μm       | [thou](https://en.wikipedia.org/wiki/Thou_(length) "Thou (length)") |
+| ---------- | -------- | -------- | ------------------------------------------------------------------- |
+| 1/2 oz/ft2 | 150 g/m2 | 17.05 μm | 0.67 thou                                                           |
+| 1 oz/ft2   | 300 g/m2 | 34.1 μm  | 1.34 thou                                                           |
+| 2 oz/ft2   | 600 g/m2 | 68.2 μm  | 2.68 thou                                                           |
+| 3 oz/ft2   | 900 g/m2 | 102.3 μm | 4.02 thou                                                           |
+![[Pasted image 20240824095513.png]]
+### Auto Routing
+- letting the software do the majority of the basic routing
+- old dogs do not like, bad taste in their mouths
+- very good at complex with tight space constraints. and non-critical
+- it's a skill to incorporate but a useful one
+### Bloating
+- artwork for tracks is typically wider then the finished metal will be. This is to compensate for [[Etch factor]]
+## Silk Screen
+- White
+- often white text to designate component names and outlines
+- try to keep text the same size, font and orientation 
+- Make sure to mark Pin 1
+- Do not rely on it for positional accuracy, it's often the least accurate layer
+- As a general rule, don’t put component values on the silkscreen, just the component designator
+## Solder Mask
+- Green
+- often a negative layer in layout tools, you see the holes
+- thin polymer coating to prevent solder from solder from bridging
+- typically covers everything but the [[#Pads]] and [[#Vias]]
+	- removed automaticcly in all design programs
+- gap left between the pad or hole and the edge of the solder mask hole is called "Mask Expansion" keep it within a few thou
+- It can be good to leave a section of the board without solder mask or tracks for writing on the board
+- they do make Peelable masks as well if you need to uncover part of the board during processing prototyping 
+## Mechanical Layer, Board Outline
+- physical size and shape of the whole PCB board
+- Must define "Edge Cut"
+## Keepout
+- generally defines areas on your board that you don’t want auto or manually routed. This can  
+include clearance areas around mounting hole pads or high voltage components for instance
+## Layer Alignment
+- can mark out alignment tolerances from the manufacturer
+
+# Holes
+---
+- What is the difference between a via and a pad? Practically speaking there is no real difference, they are both just electrically plated holes. But there are differences when it comes to PCB design packages. Pads and Vias are, and should be, treated differently. You can globally edit them separately, and do some more advanced things to be discussed later. So don’t use a pad in place of a via, and vice-versa
+- Minimize the number of hole sizes
+## Pads
+Always for the mechanical and electrical attachment of components to the board 
+### Shape
+As a general rule, use circular or oval pads unless you need to use rectangular
+Pads for leaded components like resistors, capacitors and diodes should be round, with around 70 thou diameter being common. Dual In Line (DIL) components like IC’s are better suited with oval shaped pads (60 thou high by 90-100 thou wide is common). Pin 1 of the chip should always be a different pad shape, usually rectangular, and with the same dimensions as the other pins.
+### Pad/Hole Ratio
+rule of thumb, the pad should be at least 1.8 times the diameter of the hole, or at least 0.5mm larger
+## Vias
+[Sierra circuits guide to vias](https://www.protoexpress.com/kb/pcb-via-design/)
+- connect the tracks from one side of your board to another
+- Plated Through Holes (PTH)
+- connect two layers is commonly called “stitching” 
+- Multiple and parallel vias can be used for decreasing resistance and impedance 
+### Blind Vias
+- used on [[#Multilayer Designs]] to go from an outside layer to an internal layer
+## Buried Vias
+- used on [[#Multilayer Designs]] to go between to internal layers
+## VIP (Via-in-Pad)
+Via-in-pad design is the practice of putting a via into the metal pad of a surface-mount component footprint
+# Polygons
+---
+- Useful for forming ground planes
+- Most packages will come with a polygons to "flood" around the pads and tracks
+- Almost always solid now, hatched used to be more common
+- Don’t leave any unconnected copper fills (also called “dead copper”), ground them or take them out
+- Don't forgewt to hit B after
+# Clearance
+---
+- 15 thou is a good clearance limit for basic through hole designs, with 10 thou or 8 thou being used for more dense surface mount layouts
+- High voltage and mains voltage dependent 
+![[Pasted image 20240824102041.png]]
+
+# Surface Finish 
+---
+- SMOBC - [[#Solder Mask]] over bare copper
+- HAL - Hot Air Leveled 
+- for high precision or critical. You can "flash" gold on top the pads
+## Conformal Coating
+- protective layer completely covering board
+- usually clear
+- needed for water resistance 
+# [[Maker's Mark]]
+
+# Component 
+---
+## Placement
+- PCB design is 90% placement and 10% routing
+### Rats Nest
+![[Pasted image 20240825204509.png]]
+- draws all connections between pads, not [[#Traces and Tracks]]
+- typically these lines disappear when replaced by a track
+- can allow for very fast relative placements of components 
+### Netlists, Schematic Capture
+made from the schematic a list of 
+- components
+- component designators
+- components footprints
+- connections
+### Auto Placement
+- some tools will auto populate a board, based on the schematic, to optimize parameters
+## Selection 
+- prefer a single supplier for the BOM
+- be aware of package size/code
+- just double check the datasheet 
+	- voltages
+	- pin outs 
+	- example schematic 
+- order typically 3x what you think you'll use
+### Package Sizes
+0603, 60 mil by 30 mil
+0402, 40 mil by 20 mil
+0201,20 mil by 10 mil
+
+### BGA (Ball Grid Array)
+### Mounting
+m3 3mm hole diameter
+## BOM (Bill of Materials )
+Almost all components are called out with a letter followed by a number. The letter designates the category of component, the number is the iteration of that component on the BOM. The exact same component should have different numbers across the board, helps with debugging. But that should be on the same line in the BOM
+- R for resistors 
+- C for capacitors
+- L for inductors
+- J for junctions, headers and pin outs
+- S for mechanical switches or buttons
+- U for ICs?
+- Q for Transistors?
+
+
+# DRC (Design Rule Checks)
+---
+- checks for manufacturability, manufacture dependent
+- clearance and layer issues are bare minimum
+- sometimes tolerances
+- min and max hole sizes and tracks
+- Alot of tools will do this live and won't let you violate the rules as you are building
+## LVS (Layout vs. Schematic)
+- checks the connections drawn in the layout match the planned [[#Netlists, Schematic Capture]]
+- Short circuits
+# Finishing Touches
+---
+- Traces narrower then 25 thou with a "T" junction require Chamfers to widen the tracks at the intersection
+- check [[#Mounting]]
+- Double check for correct hole sizes on all your components
+- all your vias are identical
+- Check spacing between all components
+	- Parts of exposed metal on components can contact other components or tracks
+	- Heat sinks
+	- header pins
+	- metal body
+- If your [[#Software]] has the option add "Teardrops" between tracks and holes for robustness
+# Suppliers
+---
+[Mouser](https://www.mouser.com/)
+Digikey
+# Designing for Manufacturing
+---
+## Panelization
+- "Panel" of many identical copies of a board
+- usually cheaper to put a panel into a pick and place machines
+- Panels also have [[#Tooling Strip]] that make it easier for pick and place machines to handle
+- boards can be "routed out" or with grooves to help with separation
+### Tooling Strip
+- strips on the top and bottom side of the panel
+- contains tooling holes and [[#Fiducial Marks]]
+## Fiducial Marks
+- visual alignment markers
+- used in Manufacturing and [[#Assembly]]
+- usually circular copper pad 1.5mm in diameter near 3 of the edges. usually without [[#Solder Mask]]
+- often used around fine pitch parts aswell
+## Thermal Relief
+
+# PCB Makers
+---
+[[Oskpark]]
+[Digikey](https://www.digikey.com/en/pcb-builder/)
+PCB way?
+4pcb
+[Sierra, proto express](https://www.protoexpress.com)
+Weskak
+ACT-USA
+JLCPCB
+# Gerber Files
+---
+- industry standard for board layouts
+- the generation of them from your software can cause unique errors
+- often left to the PCB manufacturer to create 
+# Assembly 
+---
+[Great Scott Video](https://www.youtube.com/watch?v=VxMV6wGS3NY)
+# Software
+---
+[PCB Basics](https://learn.sparkfun.com/tutorials/pcb-basics/all)
+[[KiCad]]
+[Projects Folder](\\192.168.1.51\Wayne\Documents\PCB Projects)
+[Downloaded Components](\\192.168.1.51\wayne\Downloads\PCB Components)
+	complete bullshit to get this to work between layouts and symbols. fuck
+	[PDF](file://///192.168.1.51/wayne/Downloads/PCB%20Components/LIB_TGF2965-SM/TGF2965-SM/How_To_Use_Models.pdf)
+Saturn PCB
+Eagle
+[EasyEDA](https://easyeda.com/)
+
+# Project Outlines
+---
+## High Efficiency Single Inductor Buck-boost Converter 
+ [Datasheet](https://www.ti.com/lit/ds/symlink/tps63021.pdf?ts=1707959103229)
+ [Purchasing](https://www.mouser.com/c/?q=TPS63020&sort=pricing)
+ [Great Scott video](https://www.youtube.com/watch?v=XAcW4c5qIMc)
+
+## Garage door sensor and controller
+- a way to detect if the door is open and or not completely closed
+- attempts to close the door after a period of time
+	- Hardware override to keep door open when that's wanted
+- if the door fails to close after multiple attempts it notifies someone
+
+# Project Ideas
+---
+- BMS battery light
+- LNA with ADS-B
+- [[40V Ryobi Bank.canvas|40V Ryobi Bank]]
+- [[40V Ryobi Battery Bank Project]]
+
+# [[PCB Laminate Boards]]
